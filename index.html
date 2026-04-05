@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Server Shop</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', sans-serif;
+            background: #0f111a;
+            color: #e5e7eb;
+        }
+
+        header {
+            background: #111827;
+            padding: 20px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        main {
+            padding: 30px 40px;
+            max-width: 1200px;
+            margin: auto;
+        }
+
+        .products h2 {
+            font-size: 22px;
+            margin-bottom: 20px;
+        }
+
+        .grid {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .card {
+            background: #1f2937;
+            padding: 20px;
+            border-radius: 12px;
+            flex: 1;
+            min-width: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+        }
+
+        .card.disabled {
+            opacity: 0.5;
+        }
+
+        .card h3 {
+            margin-top: 0;
+        }
+
+        .card p {
+            font-size: 14px;
+            color: #9ca3af;
+            margin: 10px 0;
+        }
+
+        .card .price {
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .card button {
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            background: #3b82f6;
+            color: white;
+            font-weight: bold;
+            transition: 0.2s;
+        }
+
+        .card button:hover:not(:disabled) {
+            opacity: 0.85;
+        }
+
+        /* CART STYLING */
+        .cart-box {
+            background: #1f2937;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+            max-width: 400px;
+            margin: 40px auto;
+        }
+
+        .cart-box h2 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 22px;
+            border-bottom: 1px solid #374151;
+            padding-bottom: 8px;
+        }
+
+        .cart-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 15px 0;
+        }
+
+        .cart-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #111827;
+            margin-bottom: 10px;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+
+        .cart-list li button {
+            background: #ef4444;
+            border: none;
+            color: white;
+            font-size: 14px;
+            border-radius: 6px;
+            padding: 4px 7px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .cart-list li button:hover {
+            opacity: 0.85;
+        }
+
+        .cart-total {
+            display: flex;
+            justify-content: space-between;
+            font-weight: bold;
+            font-size: 18px;
+            border-top: 1px solid #374151;
+            padding-top: 10px;
+        }
+
+        /* CHECKOUT STYLING */
+        .checkout {
+            margin-top: 50px;
+        }
+
+        .checkout h2 {
+            font-size: 22px;
+            margin-bottom: 20px;
+        }
+
+        .checkout-card {
+            background: #1f2937;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.3);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .form-group {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            padding: 8px 10px;
+            border-radius: 8px;
+            border: 1px solid #374151;
+            background: #111827;
+            color: white;
+        }
+
+        .checkout-btn {
+            margin-top: 15px;
+            padding: 12px 20px;
+            background: #3b82f6;
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            transition: 0.2s;
+        }
+
+        .checkout-btn:hover {
+            opacity: 0.85;
+        }
+
+        /* TOAST */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #22c55e;
+            color: white;
+            padding: 14px 18px;
+            border-radius: 10px;
+            font-size: 14px;
+            opacity: 0;
+            transform: translateY(20px);
+            transition: 0.3s;
+            z-index: 1000;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        @media(max-width: 768px) {
+            .grid {
+                flex-direction: column;
+            }
+            .form-row {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>💬 Discord Server Shop</h1>
+    <div class="cart">🛒 <span id="cart-count">0</span></div>
+</header>
+
+<main>
+
+    <!-- PRODUCTS -->
+    <section class="products">
+        <h2>Servers</h2>
+        <div class="grid">
+            <div class="card">
+                <h3>🎮 Gaming Server</h3>
+                <p>Fully set up with bots, roles, and channels</p>
+                <span class="price">€1.50</span>
+                <button onclick="addToCart('Gaming Server', 1.50)">Add</button>
+            </div>
+
+            <div class="card">
+                <h3>🌍 Community Server</h3>
+                <p>Perfect for building and growing communities</p>
+                <span class="price">€1.00</span>
+                <button onclick="addToCart('Community Server', 1.00)">Add</button>
+            </div>
+
+            <div class="card disabled">
+                <h3>🏆 1000 Member Server</h3>
+                <p>Designed for large and competitive communities</p>
+                <span class="price">€15.00</span>
+                <button disabled>Coming Soon</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- CART -->
+    <section class="cart-box">
+        <h2>Your Cart</h2>
+        <ul id="cart-items" class="cart-list"></ul>
+        <div class="cart-total">
+            <span>Total:</span>
+            <span>€<span id="total">0.00</span></span>
+        </div>
+    </section>
+
+    <!-- CHECKOUT -->
+    <section class="checkout">
+        <h2>Checkout</h2>
+        <div class="checkout-card">
+            <form id="checkout-form">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="name">Full Name</label>
+                        <input type="text" id="name" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="discord">Discord Username</label>
+                        <input type="text" id="discord" placeholder="user#1234" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>
+                        <input type="tel" id="phone">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="notes">Additional Notes</label>
+                    <textarea id="notes" rows="3" placeholder="Optional"></textarea>
+                </div>
+
+                <button type="submit" class="checkout-btn">
+                    Complete Order
+                </button>
+            </form>
+        </div>
+    </section>
+
+</main>
+
+<script src="script.js"></script>
+<div id="toast" class="toast">✅ Order has been placed!</div>
+</body>
+</html>
