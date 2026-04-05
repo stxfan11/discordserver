@@ -1,0 +1,139 @@
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background: #2c2f33;
+    color: white;
+}
+
+header {
+    background: #23272a;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.products {
+    display: flex;
+    gap: 20px;
+    padding: 20px;
+}
+
+.product {
+    background: #40444b;
+    padding: 15px;
+    border-radius: 10px;
+    width: 200px;
+}
+
+.product h3 {
+    margin-top: 0;
+}
+
+.price {
+    color: #43b581;
+    font-weight: bold;
+}
+
+button {
+    background: #5865f2;
+    color: white;
+    border: none;
+    padding: 10px;
+    width: 100%;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #4752c4;
+}
+
+.cart-box {
+    background: #23272a;
+    margin: 20px;
+    padding: 15px;
+    border-radius: 10px;
+}
+/* Checkout Card */
+.checkout-card {
+    background: #111827;
+    padding: 25px;
+    border-radius: 14px;
+    border: 1px solid #1f2937;
+    max-width: 700px;
+}
+
+/* Form Layout */
+.form-row {
+    display: flex;
+    gap: 15px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    margin-bottom: 15px;
+}
+
+label {
+    font-size: 13px;
+    color: #9ca3af;
+    margin-bottom: 6px;
+}
+
+/* Inputs */
+input, textarea {
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #1f2937;
+    background: #020617;
+    color: white;
+    font-size: 14px;
+}
+
+input:focus, textarea:focus {
+    outline: none;
+    border-color: #6366f1;
+    box-shadow: 0 0 0 1px #6366f1;
+}
+
+/* Button */
+.checkout-btn {
+    margin-top: 10px;
+    padding: 12px;
+    font-weight: bold;
+    background: linear-gradient(135deg, #6366f1, #4f46e5);
+    border-radius: 10px;
+    transition: 0.2s;
+}
+
+.checkout-btn:hover {
+    transform: translateY(-2px);
+    opacity: 0.95;
+}
+
+/* Mobile fix */
+@media (max-width: 600px) {
+    .form-row {
+        flex-direction: column;
+    }
+}
+.toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #22c55e;
+    color: white;
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: 0.3s;
+}
+
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
