@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Admin Dashboard</title>
-
 <style>
 body {
     margin: 0;
@@ -12,35 +11,132 @@ body {
     background: #0f111a;
     color: #e5e7eb;
 }
-
 header {
     background: #111827;
     padding: 20px 40px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
 }
-
+header h1 {
+    margin: 0;
+    font-size: 24px;
+}
 main {
-    padding: 30px;
+    padding: 30px 40px;
+    max-width: 1200px;
+    margin: auto;
 }
-
+.admin-stats {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+.stat-card {
+    flex: 1;
+    background: #1f2937;
+    padding: 20px;
+    border-radius: 12px;
+    min-width: 150px;
+}
+.stat-card p {
+    font-size: 14px;
+    color: #9ca3af;
+    margin: 0;
+}
+.stat-card h2 {
+    font-size: 28px;
+    margin: 5px 0 0 0;
+}
+.table-card {
+    background: #1f2937;
+    border-radius: 12px;
+    padding: 20px;
+    overflow-x: auto;
+}
 table {
     width: 100%;
     border-collapse: collapse;
+    min-width: 700px;
 }
-
-td, th {
-    padding: 10px;
+th, td {
+    padding: 12px 15px;
+    text-align: left;
 }
-
 th {
     background: #111827;
+    color: #9ca3af;
+    font-size: 14px;
+    position: sticky;
+    top: 0;
 }
-
-button {
+tr:not(:last-child) {
+    border-bottom: 1px solid #374151;
+}
+select {
+    padding: 6px;
+    border-radius: 6px;
+    background: #0f111a;
+    color: white;
+    border: 1px solid #374151;
+}
+.danger-btn {
+    margin-top: 20px;
+    padding: 10px 20px;
+    background: #ef4444;
+    border: none;
+    border-radius: 10px;
+    color: white;
+    font-weight: bold;
     cursor: pointer;
+    transition: 0.2s;
+}
+.danger-btn:hover {
+    opacity: 0.9;
+}
+.delete-cell {
+    text-align: center;
+    width: 40px;
+}
+.delete-cell button {
+    background: transparent;
+    border: none;
+    color: #ef4444;
+    font-size: 18px;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+    padding: 0;
+}
+.delete-cell button:hover {
+    opacity: 0.7;
+}
+.toast {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #22c55e;
+    color: white;
+    padding: 14px 18px;
+    border-radius: 10px;
+    font-size: 14px;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: 0.3s;
+    z-index: 1000;
+}
+.toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+@media(max-width: 768px) {
+    .admin-stats {
+        flex-direction: column;
+    }
 }
 </style>
 </head>
-
 <body>
 
 <header>
@@ -48,106 +144,137 @@ button {
 </header>
 
 <main>
-    <h2>Total Orders: <span id="total-orders">0</span></h2>
-    <h2>Total Revenue: €<span id="total-revenue">0.00</span></h2>
 
+<section class="admin-stats">
+    <div class="stat-card">
+        <p>Total Orders</p>
+        <h2 id="total-orders">0</h2>
+    </div>
+    <div class="stat-card">
+        <p>Total Revenue</p>
+        <h2>€<span id="total-revenue">0.00</span></h2>
+    </div>
+</section>
+
+<section class="table-card">
+    <h2>Orders</h2>
     <table>
         <thead>
             <tr>
                 <th>Name</th>
+                <th>Email</th>
                 <th>Discord</th>
-                <th>Product</th>
-                <th>Price</th>
+                <th>Phone</th>
+                <th>Notes</th>
+                <th>Products</th>
+                <th>Total (€)</th>
                 <th>Status</th>
-                <th>Delete</th>
+                <th>Action</th>
             </tr>
         </thead>
-        <tbody id="orders-table"></tbody>
+        <tbody id="orders-table">
+        </tbody>
     </table>
+</section>
+
+<button class="danger-btn" onclick="clearOrders()">Clear All Orders</button>
 </main>
 
-<!-- Firebase -->
+<div id="toast" class="toast">✅ Action completed!</div>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { 
-    getFirestore, collection, getDocs, updateDoc, deleteDoc, doc 
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, getDocs, doc, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// 🔥 PLAK HIER JOUW CONFIG
+// ---- CONFIG ----
 const firebaseConfig = {
-  apiKey: "AIzaSyB3tDV5M21Pzv1pOsBKaCHlf9886YcUMYU",
-  authDomain: "webshop-82a87.firebaseapp.com",
-  projectId: "webshop-82a87",
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT"
 };
-
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 let orders = [];
 
-async function loadOrders() {
-    const snapshot = await getDocs(collection(db, "orders"));
-    
-    orders = [];
-    snapshot.forEach(docSnap => {
-        orders.push({
-            id: docSnap.id,
-            ...docSnap.data()
-        });
-    });
-
-    renderOrders();
+async function fetchOrders() {
+  orders = [];
+  const querySnapshot = await getDocs(collection(db, "orders"));
+  querySnapshot.forEach(docSnap => {
+    orders.push({ id: docSnap.id, ...docSnap.data() });
+  });
+  renderOrders();
 }
 
 function renderOrders() {
-    const table = document.getElementById("orders-table");
-    const totalOrders = document.getElementById("total-orders");
-    const totalRevenue = document.getElementById("total-revenue");
+  const table = document.getElementById("orders-table");
+  const totalOrders = document.getElementById("total-orders");
+  const totalRevenue = document.getElementById("total-revenue");
 
-    table.innerHTML = "";
-    let revenue = 0;
+  table.innerHTML = "";
+  let revenue = 0;
 
-    orders.forEach(order => {
-        revenue += Number(order.price || 0);
+  orders.forEach((order, index) => {
+    revenue += order.totalPrice;
+    table.innerHTML += `
+      <tr>
+        <td>${order.name}</td>
+        <td>${order.email}</td>
+        <td>${order.discord}</td>
+        <td>${order.phone || "-"}</td>
+        <td>${order.notes || "-"}</td>
+        <td>${order.products}</td>
+        <td>€${order.totalPrice.toFixed(2)}</td>
+        <td>
+          <select onchange="updateStatus('${order.id}', this.value)">
+            <option ${order.status === 'Pending' ? 'selected' : ''}>Pending</option>
+            <option ${order.status === 'Completed' ? 'selected' : ''}>Completed</option>
+          </select>
+        </td>
+        <td class="delete-cell">
+          <button onclick="deleteOrder('${order.id}')">✖️</button>
+        </td>
+      </tr>
+    `;
+  });
 
-        table.innerHTML += `
-        <tr>
-            <td>${order.name}</td>
-            <td>${order.discord}</td>
-            <td>${order.product}</td>
-            <td>€${Number(order.price).toFixed(2)}</td>
-            <td>
-                <select onchange="updateStatus('${order.id}', this.value)">
-                    <option ${order.status === 'Pending' ? 'selected' : ''}>Pending</option>
-                    <option ${order.status === 'Completed' ? 'selected' : ''}>Completed</option>
-                </select>
-            </td>
-            <td>
-                <button onclick="deleteOrder('${order.id}')">❌</button>
-            </td>
-        </tr>
-        `;
-    });
-
-    totalOrders.textContent = orders.length;
-    totalRevenue.textContent = revenue.toFixed(2);
+  totalOrders.textContent = orders.length;
+  totalRevenue.textContent = revenue.toFixed(2);
 }
 
-window.updateStatus = async (id, status) => {
-    await updateDoc(doc(db, "orders", id), { status });
-    loadOrders();
-};
+async function updateStatus(id, status) {
+  await updateDoc(doc(db, "orders", id), { status });
+  showToast("Status updated!");
+  fetchOrders();
+}
 
-window.deleteOrder = async (id) => {
+async function deleteOrder(id) {
+  if(confirm("Are you sure you want to delete this order?")) {
     await deleteDoc(doc(db, "orders", id));
-    loadOrders();
-};
+    showToast("Order deleted!");
+    fetchOrders();
+  }
+}
 
-// Auto refresh elke 5 sec
-setInterval(loadOrders, 5000);
+async function clearOrders() {
+  if(confirm("Delete all orders?")) {
+    for(let order of orders) {
+      await deleteDoc(doc(db, "orders", order.id));
+    }
+    showToast("All orders cleared!");
+    fetchOrders();
+  }
+}
 
-// Eerste load
-loadOrders();
+function showToast(message) {
+  const toast = document.getElementById("toast");
+  toast.textContent = message;
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 3000);
+}
+
+// initial fetch
+fetchOrders();
 </script>
 
 </body>
